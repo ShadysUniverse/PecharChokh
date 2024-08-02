@@ -1,1 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Board</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { width: 80%; margin: auto; padding: 20px; }
+        .post { border-bottom: 1px solid #ccc; padding: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Anonymous Board</h1>
+        <form id="postForm">
+            <textarea id="message" rows="4" cols="50" placeholder="Write your message here..."></textarea>
+            <br>
+            <button type="submit">Post</button>
+        </form>
+        <h2>Posts</h2>
+        <div id="posts"></div>
+    </div>
+    <script>
+        document.getElementById('postForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const message = document.getElementById('message').value;
+            if (message.trim()) {
+                await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                document.getElementById('message').value = '';
+                loadPosts();
+            }
+        });
 
+        async function loadPosts() {
+            const response = await fetch('/api/posts');
+            const posts = await response.json();
+            const postsContainer = document.getElementById('posts');
+            postsContainer.innerHTML = posts.map(post => `<div class="post">${post.message}</div>`).join('');
+        }
+
+        window.onload = loadPosts;
+    </script>
+</body>
+</html>
